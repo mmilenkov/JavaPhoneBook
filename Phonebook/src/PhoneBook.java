@@ -34,7 +34,7 @@ class PhoneBook {
     void savePhoneBookToFile(String fileName) throws IOException {
         //Clear file first
         File file = new File(fileName);
-        file.delete(); //Why?
+        boolean delete = file.delete();
         FileWriter fstream = new FileWriter("contactlist.txt");
         BufferedWriter out = new BufferedWriter(fstream);
         contactList.forEach((key,value) ->{
@@ -87,7 +87,7 @@ class PhoneBook {
     }
 
     private void printTopFive(List<Contact> topList){ // Possibly move this to main?
-        for(int i=0; i<5; i++) {
+        for(int i=0; i<Math.min(5, topList.size()); i++) {
            topList.get(i).printContact();
         }
     }
