@@ -49,7 +49,7 @@ public class Main {
                 case 2:
                     System.out.println("Please enter the name of the contact you would like to remove:");
                     String remove = (in.nextLine().toLowerCase());
-                    testPhoneBook.removeContact(remove);
+                    System.out.println(testPhoneBook.removeContact(remove)?"Contact removed" : "No such contact exists");
                     break;
                 case 3:
                     testPhoneBook.printContacts();
@@ -57,16 +57,10 @@ public class Main {
                 case 4:
                     System.out.println("Please enter the name of the contact you would like to find:");
                     name = in.nextLine().toLowerCase();
-                    Contact contact = testPhoneBook.lookUpContact(name);
-                    if(contact == null) {
-                        System.out.println("No such contact exists");
-                    }
-                    else {
-                        System.out.println(contact.getNumber());
-                    }
+                    System.out.println(testPhoneBook.lookUpContact(name));
                     break;
                 case 5:
-                    testPhoneBook.generateTopFive();
+                    testPhoneBook.printTopFive();
                     break;
                 case 6:
                     testPhoneBook.savePhoneBookToFile(fileName); // saves once quit is called

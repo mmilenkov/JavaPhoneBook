@@ -12,24 +12,26 @@ import java.util.TreeMap;
 class PhoneBook {
     //NOTE - MOST USED OPERATION - PRINTING
     private SortedMap<String, Contact> contactList = new TreeMap<>();
+    private List<Contact> outgoingSortedList = new ArrayList<>();
 
-    void addContact (String name,String number, int outgoingCalls) {
-        Contact newContact = new Contact(name, convertToNormalized(number), outgoingCalls);
-        contactList.put(name,newContact);
-    }
-
-    void removeContact(String remove) { contactList.remove(remove); }
-
-    Contact lookUpContact(String name) { return contactList.get(name); }
-
-    void printContacts(){
-        if (contactList.size() == 0){ //Does this need to be outside of here?
-            System.out.println("There are no contacts in the Phone Book");
+    void initialisePhoneBook(String fileName) throws IOException {
+        FileReader fstream = new FileReader(fileName);
+        BufferedReader in = new BufferedReader(fstream);
+        String line;
+        Contact newContact;
+        while ((line = in.readLine()) != null) {
+            String[] split = line.split("=");
+            if(isValidNumber(split[1])) { // remove? - Skips invalid numbers
+                String key = split[0];
+                String number = convertToNormalized(split[1]); //converts valid numbers to normalized state
+                newContact = new Contact(key, number,Integer.parseInt(split[2]));
+                contactList.put(key, newContact);
+            }
         }
-        else{
-            contactList.forEach((key,value) -> value.printContact());
-        }
-    }
+        in.close();
+        fstream.close();
+        generateTopFive(); // Generates top5 list
+    } //Private
 
     void savePhoneBookToFile(String fileName) throws IOException {
         //Clear file first
@@ -39,34 +41,56 @@ class PhoneBook {
         BufferedWriter out = new BufferedWriter(fstream);
         contactList.forEach((key,value) ->{
             try {
-                    out.write(key + "=" + value.getNumber() + "=" + value.getOutgoingCalls());
-                    out.newLine();
-                }
+                out.write(key + "=" + value.getNumber() + "=" + value.getOutgoingCalls());
+                out.newLine();
+            }
             catch(IOException e){System.out.println("Failed to print to file");}});
         out.close();
         fstream.close();
 
+    } //Private
+
+    private void generateTopFive(){ //Better?
+        contactList.forEach((key,value) -> outgoingSortedList.add(value));
+        outgoingSortedList.sort(this::compare);
+        trimTopFiveList();
     }
 
-    void initialisePhoneBook(String fileName) throws IOException {
-            FileReader fstream = new FileReader(fileName);
-            BufferedReader in = new BufferedReader(fstream);
-            String line;
-            Contact newContact;
-            while ((line = in.readLine()) != null) {
-                String[] split = line.split("=");
-                if(isValid(split[1])) { // remove? - Skips invalid numbers
-                    String key = split[0];
-                    String number = convertToNormalized(split[1]); //converts valid numbers to normalized state
-                    newContact = new Contact(key, number,Integer.parseInt(split[2]));
-                    contactList.put(key, newContact);
-                }
-            }
-        in.close();
-        fstream.close();
+    void addContact (String name,String number, int outgoingCalls) {
+        Contact newContact = new Contact(name, convertToNormalized(number), outgoingCalls);
+        contactList.put(name,newContact);
+        isNewTopFive(newContact);
     }
 
-    private boolean isValid(String number){
+    boolean removeContact(String remove) {
+        if(contactList.containsKey(remove)) {
+            contactList.remove(remove);
+            return true;
+        }
+        else
+            return false;
+    }
+
+    String lookUpContact(String name) {
+        return contactList.get(name) !=null ? contactList.get(name).getNumber() : "No such contact exists";
+    }
+
+    void printContacts(){
+        if (contactList.size() == 0){ //Does this need to be outside of here?
+            System.out.println("There are no contacts in the Phone Book");
+        }
+        else{
+            contactList.forEach((key,value) -> System.out.print(value.printContact()));
+        }
+    } // How to test?
+
+    void printTopFive() {
+        for(Contact contact : outgoingSortedList) {
+            System.out.println(contact.printContact());
+        }
+    } // How to test?
+
+    private static boolean isValidNumber(String number){
         return (number.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
     }
 
@@ -79,20 +103,23 @@ class PhoneBook {
         return number;
     }
 
-    void generateTopFive(){ //Likely ridiculously slow! Must be a better way!
-        List<Contact> outgoingSortedList = new ArrayList<>();
-        contactList.forEach((key,value) -> outgoingSortedList.add(value));
-        outgoingSortedList.sort(this::compare);
-        printTopFive(outgoingSortedList);
-    }
-
-    private void printTopFive(List<Contact> topList){ // Possibly move this to main?
-        for(int i=0; i<Math.min(5, topList.size()); i++) {
-           topList.get(i).printContact();
+    private void isNewTopFive(Contact newContact) {
+        for(Contact contact : outgoingSortedList) {
+            if(contact.getOutgoingCalls() < newContact.getOutgoingCalls()) {
+            outgoingSortedList.add(newContact);
+            break;
+            }
         }
+        trimTopFiveList();
     }
 
-    private int compare(Contact c1, Contact c2) {//Move to a different place?
+    private void trimTopFiveList(){
+        int size = outgoingSortedList.size();
+        outgoingSortedList.sort(this::compare);
+        outgoingSortedList.subList(Math.min(5,size),size).clear();
+    }
+
+    private int compare(Contact c1, Contact c2) {
         return Integer.compare(c2.getOutgoingCalls(),c1.getOutgoingCalls());
     }
 
