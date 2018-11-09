@@ -13,18 +13,24 @@ class Contact {
         this.outgoingCalls = outboundCalls;
     }
 
-    String getName() {return name;}
-    String getNumber() { return number; }
+    String getName() {
+        return name;
+    }
 
-    int getOutgoingCalls() { return outgoingCalls; }
+    String getNumber() {
+        return number;
+    }
 
-    void addOutgoingCall() { outgoingCalls++; }
+    int getOutgoingCalls() {
+        return outgoingCalls;
+    }
 
-    void printContact (){
-        System.out.println("Name: " + getName());
-        System.out.println("Number: " + getNumber());
-        System.out.println("Outgoing calls: " + getOutgoingCalls());
-        System.out.println();
+    void addOutgoingCall() {
+        outgoingCalls++;
+    }
+
+    String printContact() {
+        return "Name: " + getName()+ "\nNumber: " + getNumber() +"\nOutgoing calls: " + getOutgoingCalls() + "\n";
     }
 
 }
