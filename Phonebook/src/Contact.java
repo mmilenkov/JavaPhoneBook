@@ -13,8 +13,7 @@ class Contact {
         this.outgoingCalls = outboundCalls;
     }
 
-    String getName() { return name; }
-
+    String getName() {return name;}
     String getNumber() { return number; }
 
     int getOutgoingCalls() { return outgoingCalls; }
