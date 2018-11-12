@@ -7,8 +7,10 @@ public class Main {
         PhoneBook testPhoneBook = new PhoneBook();
         String fileName = "contactlist.txt";
         testPhoneBook.initialisePhoneBook(fileName);
+
         boolean mainLoop = true;
         boolean phoneNumberLoop;
+
         do {
             Scanner in = new Scanner(System.in);
             printUI();
@@ -41,7 +43,7 @@ public class Main {
                 case 2:
                     System.out.println("Please enter the name of the contact you would like to remove:");
                     String contactToBeRemoved = (in.nextLine().toLowerCase());
-                    System.out.println(testPhoneBook.removeContact(contactToBeRemoved)?"Contact removed" : "No such contact exists");
+                    System.out.println(testPhoneBook.removeContact(contactToBeRemoved)? "Contact removed" : "No such contact exists");
                     break;
                 case 3:
                     testPhoneBook.printContacts();
@@ -64,12 +66,11 @@ public class Main {
             if(mainLoop) {
                 mainLoop = askIfUserWantsToDoSomethingElse(in);
             }
-            else if(!mainLoop) { // Is it possible to remove highlight
+            else if(!mainLoop) { // Is it possible to remove highlight?
                 testPhoneBook.savePhoneBookToFile(fileName);
             }
         }
         while(mainLoop);
-
     }
 
     private static void printUI()

@@ -1,24 +1,21 @@
 class Contact {
     private String name;
-    private String number;
+    private String phoneNumber;
     private int outgoingCalls = 0;
 
-    Contact(String name, String number){
+    Contact(String name, String phoneNumber){
         this.name = name;
-        this.number = number;
+        this.phoneNumber = phoneNumber;
     }
-    Contact(String name, String number, int outboundCalls) {
+
+    Contact(String name, String phoneNumber, int outboundCalls) {
         this.name = name;
-        this.number = number;
+        this.phoneNumber = phoneNumber;
         this.outgoingCalls = outboundCalls;
     }
 
-    String getContactName() {
-        return name;
-    }
-
     String getPhoneNumber() {
-        return number;
+        return phoneNumber;
     }
 
     int getOutgoingCalls() {
@@ -30,7 +27,6 @@ class Contact {
     }
 
     String printContact() {
-        return "Name: " + getContactName()+ "\nNumber: " + getPhoneNumber() +"\nOutgoing calls: " + getOutgoingCalls() + "\n";
+        return "Name: " + name + "\nNumber: " + phoneNumber + "\nOutgoing calls: " + outgoingCalls + "\n";
     }
-
 }
