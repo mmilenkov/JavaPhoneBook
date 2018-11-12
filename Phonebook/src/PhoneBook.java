@@ -32,34 +32,24 @@ class PhoneBook {
         generateTopFive(); // Generates top5 list
     }
 
-    void savePhoneBookToFile(String fileName) throws IOException {
-    File file = new File(fileName);
-    boolean deleteFile = file.delete();
-    FileWriter fstream = new FileWriter("contactlist.txt");
-    BufferedWriter out = new BufferedWriter(fstream);
-    contactMap.forEach((key, value) ->{
-        try {
-            out.write(key + "=" + value.getPhoneNumber() + "=" + value.getOutgoingCalls());
-            out.newLine();
-        }
-        catch(IOException e) {
-            System.out.println("Failed to print to file");
-        }
-    });
-    out.close();
-    fstream.close();
-    } //Private
-
-    private void generateTopFive(){ //Better?
-        contactMap.forEach((key, value) -> topFiveList.add(value));
-        sortTopFiveList();
-        trimTopFiveList();
-    }
-
     void addContact (String name,String phoneNumber, int outgoingCalls) {
         Contact newContact = new Contact(name, convertToNormalizedPhoneNumber(phoneNumber), outgoingCalls);
         contactMap.put(name,newContact);
         checkForNewTopFive(newContact); // Is it reasonable to remove this call?
+    }
+
+    boolean isValidPhoneNumber(String phoneNumber){
+        return (phoneNumber.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
+    }
+
+    String convertToNormalizedPhoneNumber(String phoneNumber) { // Converts numbers to normalized state when reading from file
+        if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
+            phoneNumber = "+359" + phoneNumber.substring(1);
+        }
+        else if (phoneNumber.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
+            phoneNumber = "+359" + phoneNumber.substring(5);
+        }
+        return phoneNumber;
     }
 
     boolean removeContact(String contactToBeRemoved) {
@@ -81,6 +71,7 @@ class PhoneBook {
         }
         else{
             contactMap.forEach((key, value) -> System.out.print(value.printContact()));
+            System.out.println();
         }
     } // How to test without changing function?
 
@@ -94,37 +85,47 @@ class PhoneBook {
             System.out.println("There are no contacts in the Phone book");
     } // How to test without changing function?
 
-    boolean isValidPhoneNumber(String phoneNumber){
-        return (phoneNumber.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
+    void savePhoneBookToFile(String fileName) throws IOException {
+        File file = new File(fileName);
+        boolean deleteFile = file.delete();
+        FileWriter fstream = new FileWriter("contactlist.txt");
+        BufferedWriter out = new BufferedWriter(fstream);
+        contactMap.forEach((key, value) ->{
+            try {
+                out.write(key + "=" + value.getPhoneNumber() + "=" + value.getOutgoingCalls());
+                out.newLine();
+            }
+            catch(IOException e) {
+                System.out.println("Failed to print to file");
+            }
+        });
+        out.close();
+        fstream.close();
     }
 
-    String convertToNormalizedPhoneNumber(String phoneNumber) { // Converts numbers to normalized state when reading from file
-        if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
-            phoneNumber = "+359" + phoneNumber.substring(1);
-        }
-        else if (phoneNumber.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
-            phoneNumber = "+359" + phoneNumber.substring(5);
-        }
-        return phoneNumber;
+    private void generateTopFive(){ //Better?
+        contactMap.forEach((key, value) -> topFiveList.add(value));
+        sortTopFiveList(); //Repeated lines. Do I move to a different method and call it once for these two calls?
+        trimTopFiveList();
     }
 
     private void checkForNewTopFive(Contact newContact) {
         for(Contact contact : topFiveList) {
             if(contact.getOutgoingCalls() < newContact.getOutgoingCalls()) {
-            addNewTopFive(newContact);
-            break;
+                addNewTopFive(newContact);
+                break;
             }
         }
     }
 
     private void addNewTopFive(Contact newContact) {
         topFiveList.add(newContact);
+        sortTopFiveList();
         trimTopFiveList();
     }
 
     private void trimTopFiveList(){
         int size = topFiveList.size();
-        sortTopFiveList();
         topFiveList.subList(Math.min(5,size),size).clear();
     }
 
@@ -135,5 +136,4 @@ class PhoneBook {
     private int compare(Contact c1, Contact c2) {
         return Integer.compare(c2.getOutgoingCalls(),c1.getOutgoingCalls());
     }
-
 }

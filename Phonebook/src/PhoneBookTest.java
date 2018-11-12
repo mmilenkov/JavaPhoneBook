@@ -54,7 +54,7 @@ public class PhoneBookTest {
     }
 
     @Test
-    public void canPrintEmptyContactList() {
+    public void canPrintContactList() {
         testPhoneBook.printContacts();
     }
 
