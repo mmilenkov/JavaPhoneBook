@@ -7,46 +7,36 @@ public class Main {
         PhoneBook testPhoneBook = new PhoneBook();
         String fileName = "contactlist.txt";
         testPhoneBook.initialisePhoneBook(fileName);
-        boolean loop = true;
-        while(loop) {
+        boolean mainLoop = true;
+        boolean phoneNumberLoop;
+        do {
             Scanner in = new Scanner(System.in);
-            System.out.println();
-            System.out.println("This is the testing menu. What would you like to do?");
-            System.out.println("1.Add a contact");
-            System.out.println("2.Remove a contact");
-            System.out.println("3.Print contact list");
-            System.out.println("4.Find a contact");
-            System.out.println("5.Print the 5 contact with the most outgoing calls:");
-            System.out.println("6.Quit");
-            System.out.println();
+            printUI();
             int option = in.nextInt();
             in.nextLine();
-
             switch (option) {
                 case 1:
                     String phoneNumber;
                     int outgoingCalls = (int)Math.floor(Math.random()*100);
                     System.out.println("Please enter a name for the contact:");
                     String contactName = (in.nextLine().toLowerCase());
-                    while (true) {
+                    do {
                         System.out.println("Please enter a valid phone number.");
                         phoneNumber = in.nextLine();
-                        if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
-                            phoneNumber = "+359" + phoneNumber.substring(1);
-                            break;
-                        }
-                        else if (phoneNumber.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
-                            phoneNumber = "+359" + phoneNumber.substring(4);
-                            break;
-                        }
-                        else if (phoneNumber.matches("(\\+359)(8[7-9])[2-9]\\d{6}")) {
+                        if(testPhoneBook.isValidPhoneNumber(phoneNumber)){
+                            phoneNumber = testPhoneBook.convertToNormalizedPhoneNumber(phoneNumber);
+                            testPhoneBook.addContact(contactName,phoneNumber, outgoingCalls);
                             break;
                         }
                         else {
                             System.out.println("This is not a valid phone number.");
+                            System.out.println("Would you like to try again?");
+                            System.out.println("Y/N");
+                            String choice = in.nextLine();
+                            phoneNumberLoop = (choice.equals("y") || choice.equals("Y"));
                         }
                     }
-                    testPhoneBook.addContact(contactName,phoneNumber, outgoingCalls);
+                    while (phoneNumberLoop);
                     break;
                 case 2:
                     System.out.println("Please enter the name of the contact you would like to remove:");
@@ -65,15 +55,44 @@ public class Main {
                     testPhoneBook.printTopFive();
                     break;
                 case 6:
-                    testPhoneBook.savePhoneBookToFile(fileName); // saves once quit is called
-                    loop=false;
+                    mainLoop=false;
                     break;
                 default:
                     System.out.println("Invalid Selection");
                     break;
             }
-
+            if(mainLoop) {
+                mainLoop = askIfUserWantsToDoSomethingElse(in);
+            }
+            else if(!mainLoop) { // Is it possible to remove highlight
+                testPhoneBook.savePhoneBookToFile(fileName);
+            }
         }
+        while(mainLoop);
+
+    }
+
+    private static void printUI()
+    {
+        System.out.println();
+        System.out.println("This is the testing menu. What would you like to do?");
+        System.out.println("1.Add a contact");
+        System.out.println("2.Remove a contact");
+        System.out.println("3.Print contact list");
+        System.out.println("4.Find a contact");
+        System.out.println("5.Print the 5 contact with the most outgoing calls:");
+        System.out.println("6.Quit");
+        System.out.println();
+    }
+
+    private static boolean askIfUserWantsToDoSomethingElse(Scanner in)
+    {
+        System.out.println();
+        System.out.println("Would you like to do something else?");
+        System.out.println("Y/N");
+        String choice = in.nextLine();
+        return (choice.equals("y") || choice.equals("Y"));
+
 
     }
 }
