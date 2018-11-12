@@ -11,8 +11,8 @@ import java.util.TreeMap;
 
 class PhoneBook {
     //NOTE - MOST USED OPERATION - PRINTING
-    private SortedMap<String, Contact> contactList = new TreeMap<>();
-    private List<Contact> outgoingSortedList = new ArrayList<>();
+    private SortedMap<String, Contact> contactMap = new TreeMap<>();
+    private List<Contact> topFiveList = new ArrayList<>();
 
     void initialisePhoneBook(String fileName) throws IOException {
         FileReader fstream = new FileReader(fileName);
@@ -21,92 +21,95 @@ class PhoneBook {
         Contact newContact;
         while ((line = in.readLine()) != null) {
             String[] split = line.split("=");
-            if(isValidNumber(split[1])) { // remove? - Skips invalid numbers
+            if(isValidPhoneNumber(split[1])) { // remove? - Skips invalid numbers
                 String key = split[0];
-                String number = convertToNormalized(split[1]); //converts valid numbers to normalized state
+                String number = convertToNormalizedPhoneNumber(split[1]); //converts valid numbers to normalized state
                 newContact = new Contact(key, number,Integer.parseInt(split[2]));
-                contactList.put(key, newContact);
+                contactMap.put(key, newContact);
             }
         }
         in.close();
         fstream.close();
         generateTopFive(); // Generates top5 list
-    } //Private
+    }
 
     void savePhoneBookToFile(String fileName) throws IOException {
-        //Clear file first
-        File file = new File(fileName);
-        boolean delete = file.delete();
-        FileWriter fstream = new FileWriter("contactlist.txt");
-        BufferedWriter out = new BufferedWriter(fstream);
-        contactList.forEach((key,value) ->{
-            try {
-                out.write(key + "=" + value.getNumber() + "=" + value.getOutgoingCalls());
-                out.newLine();
-            }
-            catch(IOException e){System.out.println("Failed to print to file");}});
-        out.close();
-        fstream.close();
-
+    File file = new File(fileName);
+    boolean deleteFile = file.delete();
+    FileWriter fstream = new FileWriter("contactlist.txt");
+    BufferedWriter out = new BufferedWriter(fstream);
+    contactMap.forEach((key, value) ->{
+        try {
+            out.write(key + "=" + value.getPhoneNumber() + "=" + value.getOutgoingCalls());
+            out.newLine();
+        }
+        catch(IOException e){System.out.println("Failed to print to file");}});
+    out.close();
+    fstream.close();
     } //Private
 
     private void generateTopFive(){ //Better?
-        contactList.forEach((key,value) -> outgoingSortedList.add(value));
-        outgoingSortedList.sort(this::compare);
+        contactMap.forEach((key, value) -> topFiveList.add(value));
+        sortTopFiveList();
         trimTopFiveList();
     }
 
-    void addContact (String name,String number, int outgoingCalls) {
-        Contact newContact = new Contact(name, convertToNormalized(number), outgoingCalls);
-        contactList.put(name,newContact);
-        isNewTopFive(newContact);
+    void addContact (String name,String phoneNumber, int outgoingCalls) {
+        Contact newContact = new Contact(name, convertToNormalizedPhoneNumber(phoneNumber), outgoingCalls);
+        contactMap.put(name,newContact);
+        isNewTopFive(newContact); // Is it reasonable to remove this call?
     }
 
-    boolean removeContact(String remove) {
-        if(contactList.containsKey(remove)) {
-            contactList.remove(remove);
+    boolean removeContact(String contactToBeRemoved) {
+        if(contactMap.containsKey(contactToBeRemoved)) {
+            contactMap.remove(contactToBeRemoved);
             return true;
         }
         else
             return false;
     }
 
-    String lookUpContact(String name) {
-        return contactList.get(name) !=null ? contactList.get(name).getNumber() : "No such contact exists";
+    String lookUpContact(String contactName) {
+        return contactMap.get(contactName) !=null ? contactMap.get(contactName).getPhoneNumber() : "No such contact exists";
     }
 
     void printContacts(){
-        if (contactList.size() == 0){ //Does this need to be outside of here?
+        if (contactMap.size() == 0){ //Does this need to be outside of here?
             System.out.println("There are no contacts in the Phone Book");
         }
         else{
-            contactList.forEach((key,value) -> System.out.print(value.printContact()));
+            contactMap.forEach((key, value) -> System.out.print(value.printContact()));
         }
-    } // How to test?
+    } // How to test without changing function?
 
     void printTopFive() {
-        for(Contact contact : outgoingSortedList) {
-            System.out.println(contact.printContact());
+        if(topFiveList.size() != 0) { // Not reasonable to extract?
+            for (Contact contact : topFiveList) {
+                System.out.println(contact.printContact());
+            }
         }
-    } // How to test?
+        else
+            System.out.println("There are no contacts in the Phone book");
+    } // How to test without changing function?
 
-    private static boolean isValidNumber(String number){
-        return (number.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
+    private static boolean isValidPhoneNumber(String phoneNumber){
+        return (phoneNumber.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
     }
 
-    private String convertToNormalized(String number) { // Converts numbers to normalized state when reading from file
-        if (number.matches("(0)(8[7-9])[2-9]\\d{6}")) {
-            number = "+359" + number.substring(1);
-        } else if (number.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
-            number = "+359" + number.substring(5);
+    private String convertToNormalizedPhoneNumber(String phoneNumber) { // Converts numbers to normalized state when reading from file
+        if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
+            phoneNumber = "+359" + phoneNumber.substring(1);
         }
-        return number;
+        else if (phoneNumber.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
+            phoneNumber = "+359" + phoneNumber.substring(5);
+        }
+        return phoneNumber;
     }
 
     private void isNewTopFive(Contact newContact) {
-        for(Contact contact : outgoingSortedList) {
+        for(Contact contact : topFiveList) {
             if(contact.getOutgoingCalls() < newContact.getOutgoingCalls()) {
-            outgoingSortedList.add(newContact);
+            topFiveList.add(newContact); //Reasonable to extract?
             break;
             }
         }
@@ -114,9 +117,13 @@ class PhoneBook {
     }
 
     private void trimTopFiveList(){
-        int size = outgoingSortedList.size();
-        outgoingSortedList.sort(this::compare);
-        outgoingSortedList.subList(Math.min(5,size),size).clear();
+        int size = topFiveList.size();
+        sortTopFiveList();
+        topFiveList.subList(Math.min(5,size),size).clear();
+    }
+
+    private void sortTopFiveList() {
+        topFiveList.sort(this::compare);
     }
 
     private int compare(Contact c1, Contact c2) {
