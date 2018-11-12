@@ -13,11 +13,11 @@ class Contact {
         this.outgoingCalls = outboundCalls;
     }
 
-    String getName() {
+    String getContactName() {
         return name;
     }
 
-    String getNumber() {
+    String getPhoneNumber() {
         return number;
     }
 
@@ -30,7 +30,7 @@ class Contact {
     }
 
     String printContact() {
-        return "Name: " + getName()+ "\nNumber: " + getNumber() +"\nOutgoing calls: " + getOutgoingCalls() + "\n";
+        return "Name: " + getContactName()+ "\nNumber: " + getPhoneNumber() +"\nOutgoing calls: " + getOutgoingCalls() + "\n";
     }
 
 }

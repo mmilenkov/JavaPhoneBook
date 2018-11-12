@@ -24,40 +24,42 @@ public class Main {
 
             switch (option) {
                 case 1:
-                    String number;
-                    String name;
+                    String phoneNumber;
                     int outgoingCalls = (int)Math.floor(Math.random()*100);
                     System.out.println("Please enter a name for the contact:");
-                    name = (in.nextLine().toLowerCase());
+                    String contactName = (in.nextLine().toLowerCase());
                     while (true) {
                         System.out.println("Please enter a valid phone number.");
-                        number = in.nextLine();
-                        if (number.matches("(0)(8[7-9])[2-9]\\d{6}")) {
-                            number = "+359" + number.substring(1);
+                        phoneNumber = in.nextLine();
+                        if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
+                            phoneNumber = "+359" + phoneNumber.substring(1);
                             break;
-                        } else if (number.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
-                            number = "+359" + number.substring(4);
+                        }
+                        else if (phoneNumber.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
+                            phoneNumber = "+359" + phoneNumber.substring(4);
                             break;
-                        } else if (number.matches("(\\+359)(8[7-9])[2-9]\\d{6}")) {
+                        }
+                        else if (phoneNumber.matches("(\\+359)(8[7-9])[2-9]\\d{6}")) {
                             break;
-                        } else {
+                        }
+                        else {
                             System.out.println("This is not a valid phone number.");
                         }
                     }
-                    testPhoneBook.addContact(name,number, outgoingCalls);
+                    testPhoneBook.addContact(contactName,phoneNumber, outgoingCalls);
                     break;
                 case 2:
                     System.out.println("Please enter the name of the contact you would like to remove:");
-                    String remove = (in.nextLine().toLowerCase());
-                    System.out.println(testPhoneBook.removeContact(remove)?"Contact removed" : "No such contact exists");
+                    String contactToBeRemoved = (in.nextLine().toLowerCase());
+                    System.out.println(testPhoneBook.removeContact(contactToBeRemoved)?"Contact removed" : "No such contact exists");
                     break;
                 case 3:
                     testPhoneBook.printContacts();
                     break;
                 case 4:
                     System.out.println("Please enter the name of the contact you would like to find:");
-                    name = in.nextLine().toLowerCase();
-                    System.out.println(testPhoneBook.lookUpContact(name));
+                    contactName = in.nextLine().toLowerCase();
+                    System.out.println(testPhoneBook.lookUpContact(contactName));
                     break;
                 case 5:
                     testPhoneBook.printTopFive();
