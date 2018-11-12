@@ -10,7 +10,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 class PhoneBook {
-    //NOTE - MOST USED OPERATION - PRINTING
     private SortedMap<String, Contact> contactMap = new TreeMap<>();
     private List<Contact> topFiveList = new ArrayList<>();
 
@@ -43,7 +42,10 @@ class PhoneBook {
             out.write(key + "=" + value.getPhoneNumber() + "=" + value.getOutgoingCalls());
             out.newLine();
         }
-        catch(IOException e){System.out.println("Failed to print to file");}});
+        catch(IOException e) {
+            System.out.println("Failed to print to file");
+        }
+    });
     out.close();
     fstream.close();
     } //Private
@@ -57,7 +59,7 @@ class PhoneBook {
     void addContact (String name,String phoneNumber, int outgoingCalls) {
         Contact newContact = new Contact(name, convertToNormalizedPhoneNumber(phoneNumber), outgoingCalls);
         contactMap.put(name,newContact);
-        isNewTopFive(newContact); // Is it reasonable to remove this call?
+        checkForNewTopFive(newContact); // Is it reasonable to remove this call?
     }
 
     boolean removeContact(String contactToBeRemoved) {
@@ -92,11 +94,11 @@ class PhoneBook {
             System.out.println("There are no contacts in the Phone book");
     } // How to test without changing function?
 
-    private static boolean isValidPhoneNumber(String phoneNumber){
+    boolean isValidPhoneNumber(String phoneNumber){
         return (phoneNumber.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
     }
 
-    private String convertToNormalizedPhoneNumber(String phoneNumber) { // Converts numbers to normalized state when reading from file
+    String convertToNormalizedPhoneNumber(String phoneNumber) { // Converts numbers to normalized state when reading from file
         if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
             phoneNumber = "+359" + phoneNumber.substring(1);
         }
@@ -106,13 +108,17 @@ class PhoneBook {
         return phoneNumber;
     }
 
-    private void isNewTopFive(Contact newContact) {
+    private void checkForNewTopFive(Contact newContact) {
         for(Contact contact : topFiveList) {
             if(contact.getOutgoingCalls() < newContact.getOutgoingCalls()) {
-            topFiveList.add(newContact); //Reasonable to extract?
+            addNewTopFive(newContact);
             break;
             }
         }
+    }
+
+    private void addNewTopFive(Contact newContact) {
+        topFiveList.add(newContact);
         trimTopFiveList();
     }
 
