@@ -33,9 +33,7 @@ public class Main {
                         else {
                             System.out.println("This is not a valid phone number.");
                             System.out.println("Would you like to try again?");
-                            System.out.println("Y/N");
-                            String choice = in.nextLine();
-                            phoneNumberLoop = (choice.equals("y") || choice.equals("Y"));
+                            phoneNumberLoop = askIfUserWantsToContinue(in);
                         }
                     }
                     while (phoneNumberLoop);
@@ -64,7 +62,9 @@ public class Main {
                     break;
             }
             if(mainLoop) {
-                mainLoop = askIfUserWantsToDoSomethingElse(in);
+                System.out.println();
+                System.out.println("Would you like to do something else?");
+                mainLoop = askIfUserWantsToContinue(in);
             }
             else if(!mainLoop) { // Is it possible to remove highlight?
                 testPhoneBook.savePhoneBookToFile(fileName);
@@ -86,10 +86,8 @@ public class Main {
         System.out.println();
     }
 
-    private static boolean askIfUserWantsToDoSomethingElse(Scanner in)
+    private static boolean askIfUserWantsToContinue(Scanner in)
     {
-        System.out.println();
-        System.out.println("Would you like to do something else?");
         System.out.println("Y/N");
         String choice = in.nextLine();
         return (choice.equals("y") || choice.equals("Y"));

@@ -58,5 +58,10 @@ public class PhoneBookTest {
         testPhoneBook.printContacts();
     }
 
+    @Test
+    public void canPrintTopFive() {
+        testPhoneBook.printTopFive();
+    }
+
 
 }
