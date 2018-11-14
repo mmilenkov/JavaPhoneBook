@@ -13,36 +13,36 @@ class PhoneBook {
     private SortedMap<String, Contact> contactMap = new TreeMap<>();
     private List<Contact> topFiveList = new ArrayList<>();
 
-    void initialisePhoneBook(String fileName) throws IOException {
-        FileReader fstream = new FileReader(fileName);
-        BufferedReader in = new BufferedReader(fstream);
-        String line;
-        Contact newContact;
-        while ((line = in.readLine()) != null) {
-            String[] split = line.split("=");
-            if(isValidPhoneNumber(split[1])) { // remove? - Skips invalid numbers
-                String key = split[0];
-                String number = convertToNormalizedPhoneNumber(split[1]); //converts valid numbers to normalized state
-                newContact = new Contact(key, number,Integer.parseInt(split[2]));
-                contactMap.put(key, newContact);
+    void initialisePhoneBook(String fileName) {
+        try(BufferedReader in = new BufferedReader(new FileReader(fileName))) { //Move the try block to main? I.E stop execution if this fails
+            String line;
+            Contact newContact;
+            while ((line = in.readLine()) != null) {
+                String[] split = line.split("=");
+                if (isValidPhoneNumber(split[1])) {
+                    String key = split[0];
+                    String number = convertToNormalizedPhoneNumber(split[1]);
+                    newContact = new Contact(key, number, Integer.parseInt(split[2]));
+                    contactMap.put(key, newContact);
+                }
             }
         }
-        in.close();
-        fstream.close();
-        generateTopFive(); // Generates top5 list
+        catch (Exception e) {
+            System.out.println("Exception" + e);
+        }
     }
 
     void addContact (String name,String phoneNumber, int outgoingCalls) {
         Contact newContact = new Contact(name, convertToNormalizedPhoneNumber(phoneNumber), outgoingCalls);
         contactMap.put(name,newContact);
-        checkForNewTopFive(newContact); // Is it reasonable to remove this call?
+        checkForNewTopFive(newContact);
     }
 
     boolean isValidPhoneNumber(String phoneNumber){
         return (phoneNumber.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
     }
 
-    String convertToNormalizedPhoneNumber(String phoneNumber) { // Converts numbers to normalized state when reading from file
+    String convertToNormalizedPhoneNumber(String phoneNumber) {
         if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
             phoneNumber = "+359" + phoneNumber.substring(1);
         }
@@ -57,26 +57,27 @@ class PhoneBook {
             contactMap.remove(contactToBeRemoved);
             return true;
         }
-        else
+        else {
             return false;
+        }
     }
 
     String lookUpContact(String contactName) {
-        return contactMap.get(contactName) !=null ? contactMap.get(contactName).getPhoneNumber() : "No such contact exists";
+        return contactMap.get(contactName) != null ? contactMap.get(contactName).getPhoneNumber() : "No such contact exists";
     }
 
     void printContacts(){
         if (contactMap.size() == 0){ //Does this need to be outside of here?
             System.out.println("There are no contacts in the Phone Book");
         }
-        else{
+        else {
             contactMap.forEach((key, value) -> System.out.print(value.printContact()));
             System.out.println();
         }
     } // How to test without changing function?
 
     void printTopFive() {
-        if(topFiveList.size() != 0) { // Not reasonable to extract?
+        if(topFiveList.size() != 0) {
             for (Contact contact : topFiveList) {
                 System.out.println(contact.printContact());
             }
@@ -85,27 +86,28 @@ class PhoneBook {
             System.out.println("There are no contacts in the Phone book");
     } // How to test without changing function?
 
-    void savePhoneBookToFile(String fileName) throws IOException {
-        File file = new File(fileName);
-        boolean deleteFile = file.delete();
-        FileWriter fstream = new FileWriter("contactlist.txt");
-        BufferedWriter out = new BufferedWriter(fstream);
-        contactMap.forEach((key, value) ->{
-            try {
-                out.write(key + "=" + value.getPhoneNumber() + "=" + value.getOutgoingCalls());
-                out.newLine();
-            }
-            catch(IOException e) {
-                System.out.println("Failed to print to file");
-            }
-        });
-        out.close();
-        fstream.close();
+    void savePhoneBookToFile(String fileName) {
+        try(BufferedWriter out = new BufferedWriter(new FileWriter(fileName))) { // Move to main block and handle the failure? Try again maybe?
+            File file = new File(fileName);
+            boolean deleteFile = file.delete();
+            contactMap.forEach((key, value) -> {
+                try {
+                    out.write(key + "=" + value.getPhoneNumber() + "=" + value.getOutgoingCalls());
+                    out.newLine();
+                }
+                catch (IOException e) {
+                    System.out.println("Failed to print to file");
+                }
+            });
+        }
+        catch (Exception e) {
+            System.out.println("Exception" + e);
+        }
     }
 
-    private void generateTopFive(){ //Better?
+    void generateTopFive() { //Better?
         contactMap.forEach((key, value) -> topFiveList.add(value));
-        sortTopFiveList(); //Repeated lines. Do I move to a different method and call it once for these two calls?
+        sortTopFiveList();
         trimTopFiveList();
     }
 

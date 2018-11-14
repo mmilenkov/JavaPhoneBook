@@ -1,4 +1,5 @@
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -9,12 +10,12 @@ public class PhoneBookTest {
     String name = "testNameOne";
     String invalidName = "thisisajoke";
     String validNumber = "+359884807750";
-    String invalidNumber = "85";
     int outgoingCalls = 5;
 
-
-    {
+    @Before
+    public void initialiseTests() {
         testPhoneBook.addContact("searchName","+359884807750", 0);
+        testPhoneBook.generateTopFive();
     }
 
     @Test
@@ -44,15 +45,16 @@ public class PhoneBookTest {
     @Test
     public void canRemoveContact(){
         Assert.assertTrue(testPhoneBook.removeContact("searchName"));
-        System.out.println("test3 ran");
+        System.out.println("test4 ran");
     }
 
     @Test
     public void canRemoveInvalidContact() {
         Assert.assertFalse(testPhoneBook.removeContact("valio"));
-        System.out.println("test4 ran");
+        System.out.println("test5 ran");
     }
 
+    /*
     @Test
     public void canPrintContactList() {
         testPhoneBook.printContacts();
@@ -62,6 +64,5 @@ public class PhoneBookTest {
     public void canPrintTopFive() {
         testPhoneBook.printTopFive();
     }
-
-
+    */
 }
