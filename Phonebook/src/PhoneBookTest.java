@@ -14,31 +14,31 @@ public class PhoneBookTest {
 
     @Before
     public void initialiseTests() {
-        testPhoneBook.addContact("searchName","+359884807750", 0);
+        testPhoneBook.addContact("searchName","+359884807750");
         testPhoneBook.generateTopFive();
     }
 
     @Test
     public void canAddContact() {
-        testPhoneBook.addContact(name,validNumber, outgoingCalls);
+        testPhoneBook.addContact(name,validNumber);
 
-        Assert.assertEquals(validNumber,testPhoneBook.lookUpContact(name));//Better way to check?
+        Assert.assertEquals(validNumber,testPhoneBook.lookUpContact(name).getPhoneNumber());
         System.out.println("test1 ran");
     }
 
     @Test
     public void canLookUpContact() {
-        String contact = testPhoneBook.lookUpContact("searchName");
+        Contact contact = testPhoneBook.lookUpContact("searchName");
 
-        Assert.assertEquals(validNumber,contact);
+        Assert.assertEquals(validNumber,contact.getPhoneNumber());
         System.out.println("test2 ran");
     }
 
     @Test
     public void canLookUpNonexistentContact() {
-        String contact = testPhoneBook.lookUpContact(invalidName);
+        Contact contact = testPhoneBook.lookUpContact(invalidName);
 
-        Assert.assertEquals("No such contact exists",contact);
+        Assert.assertNull(contact);
         System.out.println("test3 ran");
     }
 
