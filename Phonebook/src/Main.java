@@ -18,15 +18,14 @@ public class Main {
             switch (option) {
                 case 1:
                     String phoneNumber;
-                    int outgoingCalls = (int)Math.floor(Math.random()*100);
                     System.out.println("Please enter a name for the contact:");
                     String contactName = (in.nextLine().toLowerCase());
                     do {
                         System.out.println("Please enter a valid phone number.");
                         phoneNumber = in.nextLine();
-                        if(testPhoneBook.isValidPhoneNumber(phoneNumber)){ //Would using this check be classed as bad code? I.E pointing back to main for the check
-                            phoneNumber = testPhoneBook.convertToNormalizedPhoneNumber(phoneNumber);
-                            testPhoneBook.addContact(contactName,phoneNumber, outgoingCalls);
+                        if(PhoneBook.isValidPhoneNumber(phoneNumber)){
+                            phoneNumber = PhoneBook.convertToNormalizedPhoneNumber(phoneNumber);
+                            testPhoneBook.addContact(contactName,phoneNumber);
                             changesMade = true;
                             break;
                         }
@@ -35,7 +34,7 @@ public class Main {
                             System.out.println("Would you like to try again?");
                             phoneNumberLoop = askIfUserWantsToContinue(in);
                         }
-                    } while (phoneNumberLoop); //Meant to be here on the next line?
+                    } while (phoneNumberLoop);
                     break;
                 case 2:
                     System.out.println("Please enter the name of the contact you would like to remove:");
@@ -49,14 +48,13 @@ public class Main {
                 case 4:
                     System.out.println("Please enter the name of the contact you would like to find:");
                     contactName = in.nextLine().toLowerCase();
-                    System.out.println(testPhoneBook.lookUpContact(contactName));
+                    System.out.println(testPhoneBook.lookUpContact(contactName)!= null ? testPhoneBook.lookUpContact(contactName).getPhoneNumber() : "No such contact exists");
                     break;
                 case 5:
                     testPhoneBook.printTopFive();
                     break;
                 case 6:
                     mainLoop=false;
-                    testPhoneBook.savePhoneBookToFile(fileName);
                     break;
                 default:
                     System.out.println("Invalid Selection");
@@ -66,14 +64,11 @@ public class Main {
                 System.out.println();
                 System.out.println("Would you like to do something else?");
                 mainLoop = askIfUserWantsToContinue(in);
-                if(!mainLoop && changesMade) {
-                    testPhoneBook.savePhoneBookToFile(fileName);
-                }
             }
-            else if(!mainLoop) { // Never called even after mainloop changes. Why?
+            if(!mainLoop && changesMade) {
                 testPhoneBook.savePhoneBookToFile(fileName);
             }
-        } while(mainLoop); //Meant to be here on the next line?
+        } while(mainLoop);
     }
 
     private static void printUI() {
@@ -92,7 +87,5 @@ public class Main {
         System.out.println("Y/N");
         String choice = in.nextLine();
         return (choice.equals("y") || choice.equals("Y"));
-
-
     }
 }

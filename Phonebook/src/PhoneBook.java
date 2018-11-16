@@ -13,8 +13,22 @@ class PhoneBook {
     private SortedMap<String, Contact> contactMap = new TreeMap<>();
     private List<Contact> topFiveList = new ArrayList<>();
 
+    static boolean isValidPhoneNumber(String phoneNumber){
+        return (phoneNumber.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
+    }
+
+    static String convertToNormalizedPhoneNumber(String phoneNumber) {
+        if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
+            phoneNumber = "+359" + phoneNumber.substring(1);
+        }
+        else if (phoneNumber.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
+            phoneNumber = "+359" + phoneNumber.substring(5);
+        }
+        return phoneNumber;
+    }
+
     void initialisePhoneBook(String fileName) {
-        try(BufferedReader in = new BufferedReader(new FileReader(fileName))) { //Move the try block to main? I.E stop execution if this fails
+        try(BufferedReader in = new BufferedReader(new FileReader(fileName))) {
             String line;
             Contact newContact;
             while ((line = in.readLine()) != null) {
@@ -32,24 +46,11 @@ class PhoneBook {
         }
     }
 
-    void addContact (String name,String phoneNumber, int outgoingCalls) {
+    void addContact (String name,String phoneNumber) {
+        int outgoingCalls = (int)Math.floor(Math.random()*100); // Test code. Remove when outgoing calls are counted
         Contact newContact = new Contact(name, convertToNormalizedPhoneNumber(phoneNumber), outgoingCalls);
         contactMap.put(name,newContact);
         checkForNewTopFive(newContact);
-    }
-
-    boolean isValidPhoneNumber(String phoneNumber){
-        return (phoneNumber.matches("(0|00359|\\+359)(8[7-9])[2-9]\\d{6}"));
-    }
-
-    String convertToNormalizedPhoneNumber(String phoneNumber) {
-        if (phoneNumber.matches("(0)(8[7-9])[2-9]\\d{6}")) {
-            phoneNumber = "+359" + phoneNumber.substring(1);
-        }
-        else if (phoneNumber.matches("(00359)(8[7-9])[2-9]\\d{6}")) {
-            phoneNumber = "+359" + phoneNumber.substring(5);
-        }
-        return phoneNumber;
     }
 
     boolean removeContact(String contactToBeRemoved) {
@@ -62,8 +63,8 @@ class PhoneBook {
         }
     }
 
-    String lookUpContact(String contactName) {
-        return contactMap.get(contactName) != null ? contactMap.get(contactName).getPhoneNumber() : "No such contact exists";
+    Contact lookUpContact(String contactName) {
+        return contactMap.get(contactName);
     }
 
     void printContacts(){
@@ -74,7 +75,7 @@ class PhoneBook {
             contactMap.forEach((key, value) -> System.out.print(value.printContact()));
             System.out.println();
         }
-    } // How to test without changing function?
+    }
 
     void printTopFive() {
         if(topFiveList.size() != 0) {
@@ -84,10 +85,10 @@ class PhoneBook {
         }
         else
             System.out.println("There are no contacts in the Phone book");
-    } // How to test without changing function?
+    }
 
     void savePhoneBookToFile(String fileName) {
-        try(BufferedWriter out = new BufferedWriter(new FileWriter(fileName))) { // Move to main block and handle the failure? Try again maybe?
+        try(BufferedWriter out = new BufferedWriter(new FileWriter(fileName))) {
             File file = new File(fileName);
             boolean deleteFile = file.delete();
             contactMap.forEach((key, value) -> {
